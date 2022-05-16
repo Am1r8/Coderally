@@ -32,24 +32,27 @@ public class RallyCar extends Car {
         this.nextWayPoint = 0;
         this.waitLeft = 0;
         this.setThrottle(100);
+
     }
     protected int getWheelRotation(int heading, int targetHeading) {
-        int dv = 2;
-        if (Math.abs(heading - targetHeading) % 70 <= Math.abs(dv)) {
+        int distance_vertical = 2;
+        if (Math.abs(heading - targetHeading) % 360 <= Math.abs(distance_vertical)) {
             return 0;
         }
-        int dh = targetHeading - heading;
-        if (dh > 180) {
-            dh -= 360;
-        } else if (dh < -180) {
-            dh += 360;
+        int distance_horiz = targetHeading - heading;
+        if (distance_horiz > 180) {
+        	distance_horiz -= 360;
+        } else if (distance_horiz < -180) {
+        	distance_horiz += 360;
         }
-        if (dh > 0) {
+        if (distance_horiz > 0) {
             return 10;
         }
         return -10;
     }
     public void move(int lastMoveTime, boolean hitWall, ICar hitCar, ICar hitBySpareTire) {
+    	int time = 600 - World.getCurrentTurn();
+    	System.out.println(time);
         Point q = this.wayPoints1[this.nextWayPoint1];
         double j = this.getDistanceTo(q.x, q.y);
         int f = this.getFuel();
@@ -88,22 +91,26 @@ public class RallyCar extends Car {
             this.setThrottle(100);
         }
         int h = this.getHeadingTo(p.x, p.y);
-        if (f > 40) {
-            if (hitCar != null) {
-              this.enterProtectMode();
-              this.setThrottle(-10);
-              this.throwSpareTire();
-              this.waitLeft = 10;
-                if (this.waitLeft > 0) {
-                    --this.waitLeft;
+        if (time > 200) {
+            if (f > 35) {
+                if (hitCar != null) {
+                  this.enterProtectMode();
+                  this.setThrottle(-10);
+                  this.throwSpareTire();
+                  this.waitLeft = 10;
+                    if (this.waitLeft > 0) {
+                        --this.waitLeft;
+                    }
+                    if (this.waitLeft == 0) {
+                      this.setThrottle(100);
+                    }
                 }
-                if (this.waitLeft == 0) {
-                  this.setThrottle(100);
-                }
+              this.setSteeringSetting(this.getWheelRotation(this.getHeading(), h));
+            } else if(f < 40) {
+            	this.setSteeringSetting(this.getWheelRotation(this.getHeading(), k));
             }
-          this.setSteeringSetting(this.getWheelRotation(this.getHeading(), h));
-        } else if(f < 40) {
-          this.setSteeringSetting(this.getWheelRotation(this.getHeading(), k));
+        } else {
+        	this.setSteeringSetting(this.getWheelRotation(this.getHeading(), h));
         }
     }
 
